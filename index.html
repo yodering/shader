@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>shader</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23f4a7b9'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <header>
+    <div class="header-title">shader</div>
+  </header>
+
+  <aside id="sidebar">
+    <div class="sidebar-section">filters</div>
+    <div id="filterList"></div>
+  </aside>
+
+  <main id="mainArea">
+    <div id="imageView">
+      <div id="canvasWrapper">
+        <canvas id="glCanvas" width="1" height="1"></canvas>
+        <div id="compareOverlay">
+          <canvas id="originalCanvas"></canvas>
+          <div id="compareDivider"></div>
+        </div>
+      </div>
+      <div id="compareLabels">
+        <span id="labelOriginal">original</span>
+        <span id="labelFiltered">filtered</span>
+      </div>
+      <div id="imageActions">
+        <button id="compareBtn" class="header-btn" title="compare original vs filtered">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <line x1="12" y1="3" x2="12" y2="21"/>
+            <polyline points="5 8 2 12 5 16"/>
+            <polyline points="19 8 22 12 19 16"/>
+          </svg>
+          compare
+        </button>
+        <button id="resetBtn" class="header-btn" title="clear image">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          clear
+        </button>
+        <button id="downloadBtn" class="header-btn" title="export as png">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          export
+        </button>
+      </div>
+    </div>
+
+    <div id="dropOverlay">
+      <div class="drop-zone" id="dropZone">
+        <span class="drop-title">drop image here</span>
+        <span class="drop-sub">or click to browse</span>
+      </div>
+      <span class="preset-label">or choose a sample</span>
+      <div id="presetGrid"></div>
+    </div>
+  </main>
+
+  <aside id="paramsSidebar">
+    <div class="sidebar-section">parameters</div>
+    <div id="paramsPanel"></div>
+  </aside>
+
+</div>
+
+<!--
+  app.js is loaded as an ES module so that it can use `import` statements to
+  pull in webgl.js and filters.js without a bundler.
+  The `type="module"` attribute also automatically defers execution until the
+  DOM is ready, so DOMContentLoaded fires correctly.
+-->
+<script src="https://cdn.jsdelivr.net/npm/utif2@4.1.0/UTIF.js"></script>
+<script type="module" src="js/app.js"></script>
+
+</body>
+</html>
