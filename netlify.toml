@@ -1,0 +1,9 @@
+[[redirects]]
+  from   = "/shaders/*"
+  to     = "/public/shaders/:splat"
+  status = 200
+
+[[redirects]]
+  from   = "/test-images/*"
+  to     = "/public/test-images/:splat"
+  status = 200
