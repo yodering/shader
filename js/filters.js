@@ -203,4 +203,38 @@ export const FILTERS = [
       },
     ],
   },
+
+  {
+    id:      'nagao',
+    name:    'Nagao',
+    shader:  'shaders/nagao.glsl',
+    uniforms: [
+      {
+        name:    'uRadius',
+        label:   'Radius',
+        type:    'int',
+        min:     1,
+        max:     10,
+        step:    1,
+        default: 3,
+      },
+    ],
+  },
+
+  {
+    id:      'tomita',
+    name:    'Tomita',
+    shader:  'shaders/tomita.glsl',
+    uniforms: [
+      {
+        name:    'uRadius',
+        label:   'Radius',
+        type:    'int',
+        min:     1,
+        max:     10,
+        step:    1,
+        default: 3,
+      },
+    ],
+  },
 ];
