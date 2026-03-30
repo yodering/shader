@@ -18,6 +18,8 @@ import {
   drawQuad,
 } from './webgl.js';
 
+const BASE_URL = import.meta.env.BASE_URL;
+
 // ---------------------------------------------------------------------------
 // App state
 // ---------------------------------------------------------------------------
@@ -382,7 +384,7 @@ function loadTiffBuffer(buffer) {
  * Fetches a TIFF from a URL and passes the buffer to loadTiffBuffer.
  */
 async function loadTiffUrl(url) {
-  const resp = await fetch(url);
+  const resp = await fetch(resolveAssetUrl(url));
   const buf  = await resp.arrayBuffer();
   loadTiffBuffer(buf);
 }
@@ -601,9 +603,14 @@ function exitCompare() {
  * @returns {Promise<string>} — raw GLSL source text
  */
 async function fetchShader(path) {
-  const resp = await fetch(path);
+  const url = resolveAssetUrl(path);
+  const resp = await fetch(url);
   if (!resp.ok) {
-    throw new Error(`HTTP ${resp.status} fetching ${path}`);
+    throw new Error(`HTTP ${resp.status} fetching ${url}`);
   }
   return resp.text();
+}
+
+function resolveAssetUrl(path) {
+  return new URL(path, window.location.origin + BASE_URL).toString();
 }
