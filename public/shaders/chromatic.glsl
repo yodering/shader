@@ -6,10 +6,6 @@
  *
  * Uniforms
  *   uOffset (float, 0–0.05): displacement amount in UV space.
- *
- * TODO: implement your filter logic here.
- * Hint: offset the R channel sample toward the centre and the B channel away
- *       (or vice-versa). Keep the G channel at vTexCoord unchanged.
  */
 
 precision mediump float;

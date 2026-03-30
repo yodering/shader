@@ -6,11 +6,6 @@
  *
  * Uniforms
  *   uStrength (float, 0–1): 0 = no warp, 1 = maximum fisheye.
- *
- * TODO: implement your filter logic here.
- * Hint: convert vTexCoord to [-1,1] space, compute polar radius r,
- *       apply distortion  r' = r + uStrength * r^3  (or similar),
- *       convert back to [0,1] and sample.
  */
 
 precision mediump float;

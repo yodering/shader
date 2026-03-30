@@ -4,10 +4,6 @@
  * Creates a raised relief appearance by computing directional differences
  * between neighbouring pixels and biasing the result to mid-grey.
  *
- * TODO: implement your filter logic here.
- * Hint: emboss kernel (one variant):
- *   [[-2,-1,0],[-1,1,1],[0,1,2]]
- *   Apply to luminance, add 0.5 bias, output as greyscale.
  */
 
 precision mediump float;

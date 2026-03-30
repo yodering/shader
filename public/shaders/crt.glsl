@@ -6,10 +6,6 @@
  *
  * Uniforms
  *   uScanlineIntensity (float, 0–1): 0 = no effect, 1 = full darkening.
- *
- * TODO: implement your filter logic here.
- * Hint: use  mod(gl_FragCoord.y, 2.0) < 1.0  to identify even/odd scanlines
- *       and darken one set by (1.0 - uScanlineIntensity).
  */
 
 precision mediump float;
