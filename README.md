@@ -1,15 +1,19 @@
-# final
+# shader
 
-To install dependencies:
+WebGL image-filter playground powered by Vite.
 
-```bash
-bun install
-```
-
-To run:
+## Development
 
 ```bash
-bun run index.ts
+npm install
+npm run dev
 ```
 
-This project was created using `bun init` in bun v1.2.22. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+## Production build
+
+```bash
+npm run build
+npm run preview
+```
+
+Static assets live in `public/`. Application source lives in `src/`.

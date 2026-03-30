@@ -3,9 +3,11 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun --hot server.ts"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "vite": "^7.1.9"
   }
 }

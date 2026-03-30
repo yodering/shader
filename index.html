@@ -82,13 +82,11 @@
 </div>
 
 <!--
-  app.js is loaded as an ES module so that it can use `import` statements to
-  pull in webgl.js and filters.js without a bundler.
-  The `type="module"` attribute also automatically defers execution until the
-  DOM is ready, so DOMContentLoaded fires correctly.
+  Vite serves src/app.js as the module entry during development and bundles it
+  for production. Static assets remain in /public and are fetched by path.
 -->
 <script src="https://cdn.jsdelivr.net/npm/utif2@4.1.0/UTIF.js"></script>
-<script type="module" src="js/app.js"></script>
+<script type="module" src="/src/app.js"></script>
 
 </body>
 </html>
