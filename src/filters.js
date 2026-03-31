@@ -205,9 +205,9 @@ export const FILTERS = [
   },
 
   {
-    id:      'nagao',
-    name:    'Nagao',
-    shader:  'shaders/nagao.glsl',
+    id:      'tomita',
+    name:    'Tomita-Tsuji',
+    shader:  'shaders/tomita.glsl',
     uniforms: [
       {
         name:    'uRadius',
@@ -222,9 +222,9 @@ export const FILTERS = [
   },
 
   {
-    id:      'tomita',
-    name:    'Tomita',
-    shader:  'shaders/tomita.glsl',
+    id:      'nagao',
+    name:    'Nagao-Matsuyama',
+    shader:  'shaders/nagao.glsl',
     uniforms: [
       {
         name:    'uRadius',
