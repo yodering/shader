@@ -11,7 +11,6 @@ void main() {
     int r = uRadius;
 
     const int MAX_RADIUS = 10;
-    const vec3 luma = vec3(0.2126, 0.7152, 0.0722);
 
     int centerMin = -int(floor(float(r) * 0.5));
     int centerMax = centerMin + r;
@@ -55,7 +54,7 @@ void main() {
 
         vec3 mean = S1 / n;
         vec3 variance = max(S2 / n - mean * mean, vec3(0.0));
-        float totalVar = dot(variance, luma);
+        float totalVar = variance.r + variance.g + variance.b;
 
         if (totalVar < minVariance) {
             minVariance = totalVar;
