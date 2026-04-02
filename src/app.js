@@ -19,6 +19,7 @@ import {
 } from './webgl.js';
 
 const BASE_URL = import.meta.env.BASE_URL;
+const THEME_STORAGE_KEY = 'shader-theme';
 
 // ---------------------------------------------------------------------------
 // App state
@@ -83,6 +84,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   buildFilterList();
   buildPresetGrid();
+  setupThemeToggle();
   setupDropZone();
   setupDownloadButton();
   setupResetButton();
@@ -613,4 +615,44 @@ async function fetchShader(path) {
 
 function resolveAssetUrl(path) {
   return new URL(path, window.location.origin + BASE_URL).toString();
+}
+
+// ---------------------------------------------------------------------------
+// Theme
+// ---------------------------------------------------------------------------
+
+function setupThemeToggle() {
+  const button = document.getElementById('themeToggleBtn');
+  const label = document.getElementById('themeToggleLabel');
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+  const getPreferredTheme = () => {
+    const storedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (storedTheme === 'light' || storedTheme === 'dark') return storedTheme;
+    return mediaQuery.matches ? 'dark' : 'light';
+  };
+
+  const applyTheme = (theme) => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    label.textContent = nextTheme;
+    button.setAttribute('aria-label', `switch to ${nextTheme} mode`);
+    button.setAttribute('title', `switch to ${nextTheme} mode`);
+  };
+
+  applyTheme(getPreferredTheme());
+
+  button.addEventListener('click', () => {
+    const currentTheme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    applyTheme(nextTheme);
+  });
+
+  mediaQuery.addEventListener('change', (event) => {
+    if (localStorage.getItem(THEME_STORAGE_KEY)) return;
+    applyTheme(event.matches ? 'dark' : 'light');
+  });
 }

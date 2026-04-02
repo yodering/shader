@@ -1,6 +1,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  color-scheme: dark;
   --bg:         #0a0a0a;
   --surface:    #111111;
   --surface2:   #1a1a1a;
@@ -12,6 +13,18 @@
   --sidebar-w:  240px;
   --header-h:   44px;
   --transition: 0.1s ease;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg:         #f5f1e8;
+  --surface:    #fffaf0;
+  --surface2:   #efe3d2;
+  --border:     #d8c7b4;
+  --accent:     #a64d79;
+  --text:       #2f241d;
+  --text-muted: #7b6759;
+  --error:      #c64949;
 }
 
 html, body {
@@ -77,6 +90,11 @@ header {
   transition: color var(--transition), border-color var(--transition);
 }
 .header-btn:hover { color: var(--text); border-color: var(--text-muted); }
+
+#themeToggleBtn {
+  min-width: 6.5em;
+  justify-content: center;
+}
 
 .header-btn svg {
   width: 0.9em;
@@ -354,7 +372,7 @@ main.drag-over #dropOverlay {
 
 .drop-sub {
   font-size: 0.85em;
-  color: var(--border);
+  color: var(--text-muted);
 }
 
 .preset-label {
