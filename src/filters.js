@@ -56,6 +56,23 @@ export const FILTERS = [
   },
 
   {
+    id:      'posterize',
+    name:    'Posterize',
+    shader:  'shaders/posterize.glsl',
+    uniforms: [
+      {
+        name:    'uLevels',
+        label:   'Levels',
+        type:    'int',
+        min:     2,
+        max:     16,
+        step:    1,
+        default: 5,
+      },
+    ],
+  },
+
+  {
     id:      'box',
     name:    'Box Blur',
     shader:  'shaders/box.glsl',

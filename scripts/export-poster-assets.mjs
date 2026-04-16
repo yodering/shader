@@ -12,6 +12,7 @@ const outputDir = path.join(root, 'poster-assets');
 const FILTERS = [
   { button: 'Passthrough', filename: 'passthrough.png' },
   { button: 'Grayscale', filename: 'grayscale.png' },
+  { button: 'Posterize', filename: 'posterize.png' },
   { button: 'Box Blur', filename: 'box-blur.png' },
   { button: 'Tent Blur', filename: 'tent-blur.png' },
   { button: 'Gaussian Blur', filename: 'gaussian-blur.png' },

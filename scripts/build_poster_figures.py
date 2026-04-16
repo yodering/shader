@@ -26,6 +26,7 @@ FILTER_LABELS = [
     ("chromatic-aberration.png", "Chromatic"),
     ("fisheye.png", "Fisheye"),
     ("crt.png", "CRT"),
+    ("posterize.png", "Posterize"),
 ]
 
 
