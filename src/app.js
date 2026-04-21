@@ -89,6 +89,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   setupDownloadButton();
   setupResetButton();
   setupCompareButton();
+  setupCanvasResizeSync();
 
   // Activate the first filter by default.
   await activateFilter(FILTERS[0]);
@@ -506,9 +507,7 @@ function setupResetButton() {
 
 function setupCompareButton() {
   const btn      = document.getElementById('compareBtn');
-  const divider  = document.getElementById('compareDivider');
   const overlay  = document.getElementById('compareOverlay');
-
   const labels = document.getElementById('compareLabels');
 
   btn.addEventListener('click', () => {
@@ -523,22 +522,45 @@ function setupCompareButton() {
     }
   });
 
-  // Drag the divider.
-  divider.addEventListener('mousedown', (e) => {
-    e.preventDefault();
-    const onMove = (e) => {
-      const glCanvas = document.getElementById('glCanvas');
-      const rect     = glCanvas.getBoundingClientRect();
-      compareFraction = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-      updateCompare();
+  // Use pointer events so compare mode works with mouse, touch, and pen.
+  overlay.addEventListener('pointerdown', (event) => {
+    if (!compareActive || !loadedImage) return;
+
+    event.preventDefault();
+    const pointerId = event.pointerId;
+
+    const onMove = (moveEvent) => {
+      if (moveEvent.pointerId !== pointerId) return;
+      setCompareFractionFromClientX(moveEvent.clientX);
     };
-    const onUp = () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
+
+    const onUp = (endEvent) => {
+      if (endEvent.pointerId !== pointerId) return;
+
+      overlay.removeEventListener('pointermove', onMove);
+      overlay.removeEventListener('pointerup', onUp);
+      overlay.removeEventListener('pointercancel', onUp);
+
+      if (overlay.hasPointerCapture?.(pointerId)) {
+        overlay.releasePointerCapture(pointerId);
+      }
     };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
+
+    overlay.setPointerCapture?.(pointerId);
+    setCompareFractionFromClientX(event.clientX);
+    overlay.addEventListener('pointermove', onMove);
+    overlay.addEventListener('pointerup', onUp);
+    overlay.addEventListener('pointercancel', onUp);
   });
+}
+
+function setCompareFractionFromClientX(clientX) {
+  const glCanvas = document.getElementById('glCanvas');
+  const rect = glCanvas.getBoundingClientRect();
+  if (!rect.width) return;
+
+  compareFraction = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  updateCompare();
 }
 
 /**
@@ -556,6 +578,7 @@ function updateCompare() {
   const divider   = document.getElementById('compareDivider');
   const w = glCanvas.offsetWidth;
   const h = glCanvas.offsetHeight;
+  if (!w || !h) return;
   const splitX = Math.round(compareFraction * w);
 
   // Match display size.
@@ -566,6 +589,7 @@ function updateCompare() {
 
   // Draw the original image scaled to fill the canvas display size.
   const ctx = origCanvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
   ctx.drawImage(loadedImage, 0, 0, w, h);
 
   // Clip to the left portion.
@@ -589,6 +613,27 @@ function exitCompare() {
   if (overlay) overlay.classList.remove('active');
   const labels = document.getElementById('compareLabels');
   if (labels) labels.classList.remove('active');
+}
+
+function setupCanvasResizeSync() {
+  const glCanvas = document.getElementById('glCanvas');
+  let frame = null;
+
+  const syncCompare = () => {
+    if (frame !== null) return;
+
+    frame = window.requestAnimationFrame(() => {
+      frame = null;
+      updateCompare();
+    });
+  };
+
+  if ('ResizeObserver' in window) {
+    const observer = new ResizeObserver(syncCompare);
+    observer.observe(glCanvas);
+  }
+
+  window.addEventListener('resize', syncCompare, { passive: true });
 }
 
 // ---------------------------------------------------------------------------
