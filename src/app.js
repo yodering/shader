@@ -195,7 +195,7 @@ function buildParamsPanel(filter) {
     return;
   }
 
-  filter.uniforms.forEach((u) => {
+  filter.uniforms.forEach((u, index) => {
     // Container row.
     const row = document.createElement('div');
     row.className = 'param-row';
@@ -203,6 +203,7 @@ function buildParamsPanel(filter) {
     // Label showing name and current value.
     const label = document.createElement('label');
     label.className = 'param-label';
+    label.htmlFor = `param-${filter.id}-${index}`;
 
     const nameSpan = document.createElement('span');
     nameSpan.textContent = u.label;
@@ -215,7 +216,17 @@ function buildParamsPanel(filter) {
     label.appendChild(valueSpan);
 
     // Range slider.
+    const sliderRow = document.createElement('div');
+    sliderRow.className = 'param-slider-row';
+
+    const decreaseBtn = document.createElement('button');
+    decreaseBtn.type = 'button';
+    decreaseBtn.className = 'param-stepper';
+    decreaseBtn.setAttribute('aria-label', `decrease ${u.label}`);
+    decreaseBtn.textContent = '-';
+
     const slider = document.createElement('input');
+    slider.id    = `param-${filter.id}-${index}`;
     slider.type  = 'range';
     slider.min   = u.min;
     slider.max   = u.max;
@@ -223,17 +234,70 @@ function buildParamsPanel(filter) {
     slider.value = uniformValues[u.name];
     slider.className = 'param-slider';
 
-    slider.addEventListener('input', () => {
+    const increaseBtn = document.createElement('button');
+    increaseBtn.type = 'button';
+    increaseBtn.className = 'param-stepper';
+    increaseBtn.setAttribute('aria-label', `increase ${u.label}`);
+    increaseBtn.textContent = '+';
+
+    const syncSlider = (shouldRender = true) => {
       const raw = parseFloat(slider.value);
       uniformValues[u.name] = u.type === 'int' ? Math.round(raw) : raw;
+      slider.value = uniformValues[u.name];
       valueSpan.textContent = formatValue(u, uniformValues[u.name]);
-      render();
+      updateSliderFill(slider);
+      updateStepperState(slider, decreaseBtn, increaseBtn);
+      if (shouldRender) render();
+    };
+
+    slider.addEventListener('input', () => {
+      syncSlider();
+    });
+
+    decreaseBtn.addEventListener('click', () => {
+      slider.stepDown();
+      syncSlider();
+    });
+
+    increaseBtn.addEventListener('click', () => {
+      slider.stepUp();
+      syncSlider();
     });
 
     row.appendChild(label);
-    row.appendChild(slider);
+    sliderRow.appendChild(decreaseBtn);
+    sliderRow.appendChild(slider);
+    sliderRow.appendChild(increaseBtn);
+    row.appendChild(sliderRow);
     panel.appendChild(row);
+
+    syncSlider(false);
   });
+}
+
+function updateSliderFill(slider) {
+  const min = parseFloat(slider.min);
+  const max = parseFloat(slider.max);
+  const value = parseFloat(slider.value);
+
+  if (!Number.isFinite(min) || !Number.isFinite(max) || max <= min || !Number.isFinite(value)) {
+    slider.style.setProperty('--slider-progress', '0%');
+    return;
+  }
+
+  const progress = ((value - min) / (max - min)) * 100;
+  slider.style.setProperty('--slider-progress', `${Math.min(100, Math.max(0, progress))}%`);
+}
+
+function updateStepperState(slider, decreaseBtn, increaseBtn) {
+  const min = parseFloat(slider.min);
+  const max = parseFloat(slider.max);
+  const value = parseFloat(slider.value);
+  const step = parseFloat(slider.step);
+  const tolerance = Number.isFinite(step) ? step / 2 : 1e-6;
+
+  decreaseBtn.disabled = !Number.isFinite(value) || value <= min + tolerance;
+  increaseBtn.disabled = !Number.isFinite(value) || value >= max - tolerance;
 }
 
 /** Format a slider value for display, respecting int vs float. */

@@ -290,33 +290,101 @@ main {
   text-align: right;
 }
 
+.param-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.param-stepper {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition), background var(--transition);
+}
+
+.param-stepper:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+.param-stepper:active:not(:disabled) {
+  color: var(--accent);
+  background: var(--surface2);
+}
+
+.param-stepper:disabled {
+  color: var(--border);
+  cursor: default;
+}
+
 .param-slider {
+  --slider-progress: 0%;
+  --slider-track-size: 0.2rem;
+  --slider-thumb-size: 0.9rem;
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 1px;
-  background: var(--border);
+  min-width: 0;
+  height: 1.5rem;
+  background: transparent;
   outline: none;
   cursor: pointer;
+  touch-action: pan-y;
+}
+
+.param-slider::-webkit-slider-runnable-track {
+  height: var(--slider-track-size);
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--accent) 0%,
+    var(--accent) var(--slider-progress),
+    var(--border) var(--slider-progress),
+    var(--border) 100%
+  );
 }
 
 .param-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 0.75em;
-  height: 0.75em;
+  width: var(--slider-thumb-size);
+  height: var(--slider-thumb-size);
   border-radius: 50%;
   background: var(--accent);
   cursor: pointer;
+  border: 2px solid var(--bg);
+  margin-top: calc((var(--slider-track-size) - var(--slider-thumb-size)) / 2);
+}
+
+.param-slider::-moz-range-track {
+  height: var(--slider-track-size);
   border: none;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.param-slider::-moz-range-progress {
+  height: var(--slider-track-size);
+  border-radius: 999px;
+  background: var(--accent);
 }
 
 .param-slider::-moz-range-thumb {
-  width: 0.75em;
-  height: 0.75em;
+  width: var(--slider-thumb-size);
+  height: var(--slider-thumb-size);
   border-radius: 50%;
   background: var(--accent);
   cursor: pointer;
-  border: none;
+  border: 2px solid var(--bg);
 }
 
 main {
@@ -535,6 +603,26 @@ main.drag-over #dropOverlay {
   }
 
   .param-label { margin-bottom: 0.6rem; }
+
+  .param-value {
+    min-width: 3em;
+    font-size: 0.95em;
+  }
+
+  .param-stepper {
+    display: inline-flex;
+    flex: 0 0 2.35rem;
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: 999px;
+    font-size: 1.2rem;
+  }
+
+  .param-slider {
+    --slider-track-size: 0.38rem;
+    --slider-thumb-size: 1.2rem;
+    height: 2.5rem;
+  }
 
   #glCanvas {
     max-width: 100%;
