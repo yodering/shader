@@ -14,6 +14,7 @@ import {
   createQuad,
   bindQuadAttributes,
   uploadTexture,
+  updateTexture,
   setUniforms,
   drawQuad,
 } from './webgl.js';
@@ -39,6 +40,14 @@ let imageTexture = null;
 
 /** The HTMLImageElement most recently loaded by the user. */
 let loadedImage = null;
+
+/** The active source element drawn into uTexture: image/canvas/video. */
+let sourceElement = null;
+
+/** Live camera state. */
+let cameraStream = null;
+let cameraVideo = null;
+let cameraFrameRequest = null;
 
 /** Raw GLSL source of the vertex shader (loaded once). */
 let vertexSource = null;
@@ -86,6 +95,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   buildPresetGrid();
   setupThemeToggle();
   setupDropZone();
+  setupCameraButton();
   setupDownloadButton();
   setupResetButton();
   setupCompareButton();
@@ -358,6 +368,35 @@ function render() {
   drawQuad(gl);
 }
 
+function setCanvasSize(w, h) {
+  const canvas = document.getElementById('glCanvas');
+  canvas.width  = w;
+  canvas.height = h;
+  gl.viewport(0, 0, w, h);
+}
+
+function showImageActions() {
+  document.getElementById('dropOverlay').style.display = 'none';
+  const resetBtn = document.getElementById('resetBtn');
+  if (resetBtn) resetBtn.style.display = 'flex';
+  const compareBtn = document.getElementById('compareBtn');
+  if (compareBtn) compareBtn.style.display = 'flex';
+  const imageActions = document.getElementById('imageActions');
+  if (imageActions) imageActions.classList.add('visible');
+}
+
+function setCameraUi(active) {
+  const startButtons = document.querySelectorAll('.camera-start-btn');
+  const stopBtn = document.getElementById('cameraStopBtn');
+  const cameraStatus = document.getElementById('cameraStatus');
+
+  startButtons.forEach((btn) => {
+    btn.disabled = active;
+  });
+  if (stopBtn) stopBtn.style.display = active ? 'flex' : 'none';
+  if (cameraStatus) cameraStatus.textContent = active ? 'camera on' : '';
+}
+
 // ---------------------------------------------------------------------------
 // Image loading
 // ---------------------------------------------------------------------------
@@ -369,6 +408,8 @@ function render() {
  * canvas) as a WebGL texture and resizes the canvas.
  */
 function loadImageFromElement(img, w, h) {
+  stopCamera();
+
   const MAX_DIM = 1200;
   if (w > MAX_DIM || h > MAX_DIM) {
     const scale = Math.min(MAX_DIM / w, MAX_DIM / h);
@@ -376,22 +417,14 @@ function loadImageFromElement(img, w, h) {
     h = Math.round(h * scale);
   }
 
-  const canvas = document.getElementById('glCanvas');
-  canvas.width  = w;
-  canvas.height = h;
-  gl.viewport(0, 0, w, h);
+  setCanvasSize(w, h);
 
   if (imageTexture) gl.deleteTexture(imageTexture);
   imageTexture = uploadTexture(gl, img);
   loadedImage  = img;
+  sourceElement = img;
 
-  document.getElementById('dropOverlay').style.display = 'none';
-  const resetBtn = document.getElementById('resetBtn');
-  if (resetBtn) resetBtn.style.display = 'flex';
-  const compareBtn = document.getElementById('compareBtn');
-  if (compareBtn) compareBtn.style.display = 'flex';
-  const imageActions = document.getElementById('imageActions');
-  if (imageActions) imageActions.classList.add('visible');
+  showImageActions();
   exitCompare();
   render();
 }
@@ -503,6 +536,114 @@ function setupDropZone() {
 }
 
 // ---------------------------------------------------------------------------
+// Camera
+// ---------------------------------------------------------------------------
+
+function setupCameraButton() {
+  const startButtons = document.querySelectorAll('.camera-start-btn');
+  const stopBtn = document.getElementById('cameraStopBtn');
+  if (!startButtons.length || !stopBtn) return;
+
+  if (!navigator.mediaDevices?.getUserMedia) {
+    startButtons.forEach((btn) => {
+      btn.disabled = true;
+    });
+    const cameraStatus = document.getElementById('cameraStatus');
+    if (cameraStatus) cameraStatus.textContent = 'camera unavailable';
+    return;
+  }
+
+  startButtons.forEach((btn) => {
+    btn.addEventListener('click', startCamera);
+  });
+  stopBtn.addEventListener('click', stopCameraAndReset);
+}
+
+async function startCamera() {
+  const cameraStatus = document.getElementById('cameraStatus');
+  try {
+    if (cameraStatus) cameraStatus.textContent = 'requesting camera...';
+
+    stopCamera();
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: 'user',
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+      },
+      audio: false,
+    });
+
+    cameraVideo = document.createElement('video');
+    cameraVideo.autoplay = true;
+    cameraVideo.muted = true;
+    cameraVideo.playsInline = true;
+    cameraVideo.srcObject = cameraStream;
+    await cameraVideo.play();
+
+    const w = cameraVideo.videoWidth || 1280;
+    const h = cameraVideo.videoHeight || 720;
+    setCanvasSize(w, h);
+
+    if (imageTexture) gl.deleteTexture(imageTexture);
+    imageTexture = uploadTexture(gl, cameraVideo);
+    loadedImage = null;
+    sourceElement = cameraVideo;
+
+    showImageActions();
+    exitCompare();
+    setCameraUi(true);
+    renderCameraFrame();
+  } catch (err) {
+    stopCamera();
+    if (cameraStatus) cameraStatus.textContent = `camera blocked: ${err.message}`;
+  }
+}
+
+function renderCameraFrame() {
+  if (!cameraVideo || !imageTexture) return;
+
+  if (cameraVideo.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+    const w = cameraVideo.videoWidth;
+    const h = cameraVideo.videoHeight;
+    const canvas = document.getElementById('glCanvas');
+    if (w && h && (canvas.width !== w || canvas.height !== h)) {
+      setCanvasSize(w, h);
+    }
+
+    updateTexture(gl, imageTexture, cameraVideo);
+    render();
+    updateCompare();
+  }
+
+  cameraFrameRequest = window.requestAnimationFrame(renderCameraFrame);
+}
+
+function stopCamera() {
+  if (cameraFrameRequest !== null) {
+    window.cancelAnimationFrame(cameraFrameRequest);
+    cameraFrameRequest = null;
+  }
+
+  if (cameraStream) {
+    cameraStream.getTracks().forEach((track) => track.stop());
+    cameraStream = null;
+  }
+
+  if (cameraVideo) {
+    cameraVideo.srcObject = null;
+    cameraVideo = null;
+  }
+
+  setCameraUi(false);
+}
+
+function stopCameraAndReset() {
+  stopCamera();
+  resetSource();
+}
+
+// ---------------------------------------------------------------------------
 // Download
 // ---------------------------------------------------------------------------
 
@@ -541,28 +682,30 @@ function setupDownloadButton() {
 function setupResetButton() {
   const btn = document.getElementById('resetBtn');
   if (!btn) return;
-  btn.addEventListener('click', () => {
-    if (imageTexture) {
-      gl.deleteTexture(imageTexture);
-      imageTexture = null;
-    }
-    loadedImage = null;
+  btn.addEventListener('click', resetSource);
+}
 
-    // Reset canvas to 1×1 so it takes no space behind the overlay.
-    const canvas = document.getElementById('glCanvas');
-    canvas.width  = 1;
-    canvas.height = 1;
-    gl.viewport(0, 0, 1, 1);
+function resetSource() {
+  stopCamera();
 
-    exitCompare();
-    document.getElementById('dropOverlay').style.display = '';
-    const rb = document.getElementById('resetBtn');
-    if (rb) rb.style.display = 'none';
-    const cb = document.getElementById('compareBtn');
-    if (cb) cb.style.display = 'none';
-    const imageActions = document.getElementById('imageActions');
-    if (imageActions) imageActions.classList.remove('visible');
-  });
+  if (imageTexture) {
+    gl.deleteTexture(imageTexture);
+    imageTexture = null;
+  }
+  loadedImage = null;
+  sourceElement = null;
+
+  // Reset canvas to 1×1 so it takes no space behind the overlay.
+  setCanvasSize(1, 1);
+
+  exitCompare();
+  document.getElementById('dropOverlay').style.display = '';
+  const rb = document.getElementById('resetBtn');
+  if (rb) rb.style.display = 'none';
+  const cb = document.getElementById('compareBtn');
+  if (cb) cb.style.display = 'none';
+  const imageActions = document.getElementById('imageActions');
+  if (imageActions) imageActions.classList.remove('visible');
 }
 
 // ---------------------------------------------------------------------------
@@ -588,7 +731,7 @@ function setupCompareButton() {
 
   // Use pointer events so compare mode works with mouse, touch, and pen.
   overlay.addEventListener('pointerdown', (event) => {
-    if (!compareActive || !loadedImage) return;
+    if (!compareActive || !sourceElement) return;
 
     event.preventDefault();
     const pointerId = event.pointerId;
@@ -635,7 +778,7 @@ function setCompareFractionFromClientX(clientX) {
  * left of the divider is visible.  Also positions the divider line.
  */
 function updateCompare() {
-  if (!compareActive || !loadedImage) return;
+  if (!compareActive || !sourceElement) return;
 
   const glCanvas  = document.getElementById('glCanvas');
   const origCanvas = document.getElementById('originalCanvas');
@@ -654,7 +797,7 @@ function updateCompare() {
   // Draw the original image scaled to fill the canvas display size.
   const ctx = origCanvas.getContext('2d');
   ctx.clearRect(0, 0, w, h);
-  ctx.drawImage(loadedImage, 0, 0, w, h);
+  ctx.drawImage(sourceElement, 0, 0, w, h);
 
   // Clip to the left portion.
   origCanvas.style.clipPath = `inset(0 ${w - splitX}px 0 0)`;

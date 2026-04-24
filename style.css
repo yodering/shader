@@ -116,6 +116,7 @@ header {
 
 #resetBtn { display: none; }
 #compareBtn { display: none; }
+#cameraStopBtn { display: none; }
 #compareBtn.active { color: var(--accent); border-color: var(--accent); }
 
 /* Compare (split-slider) overlay */
@@ -503,6 +504,24 @@ main.drag-over #dropOverlay {
 }
 
 .preset-btn:hover { color: var(--text); border-color: var(--text-muted); }
+
+.camera-start-btn {
+  margin-top: 0.25rem;
+  background: var(--surface);
+}
+
+.camera-start-btn:disabled {
+  color: var(--border);
+  cursor: default;
+}
+
+.camera-status {
+  min-height: 1.5em;
+  max-width: min(100%, 32rem);
+  color: var(--text-muted);
+  font-size: 0.8em;
+  overflow-wrap: anywhere;
+}
 
 @media (max-width: 900px) {
   body { overflow: auto; }

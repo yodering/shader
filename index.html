@@ -52,6 +52,13 @@
         <span id="labelFiltered">filtered</span>
       </div>
       <div id="imageActions">
+        <button class="header-btn camera-start-btn" type="button" title="use live camera">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M23 7l-7 5 7 5V7z"/>
+            <rect x="1" y="5" width="15" height="14" rx="2"/>
+          </svg>
+          camera
+        </button>
         <button id="compareBtn" class="header-btn" title="compare original vs filtered">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <line x1="12" y1="3" x2="12" y2="21"/>
@@ -66,6 +73,12 @@
             <line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
           clear
+        </button>
+        <button id="cameraStopBtn" class="header-btn" title="stop camera">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="6" y="6" width="12" height="12"/>
+          </svg>
+          stop camera
         </button>
         <button id="downloadBtn" class="header-btn" title="export as png">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -85,6 +98,14 @@
       </div>
       <span class="preset-label">or choose a sample</span>
       <div id="presetGrid"></div>
+      <button class="header-btn camera-start-btn" type="button" title="use live camera">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M23 7l-7 5 7 5V7z"/>
+          <rect x="1" y="5" width="15" height="14" rx="2"/>
+        </svg>
+        use camera
+      </button>
+      <span id="cameraStatus" class="camera-status" role="status" aria-live="polite"></span>
     </div>
   </main>
 
