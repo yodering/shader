@@ -73,42 +73,6 @@ def region_stats_for_pixel(image, x=PIXEL_X, y=PIXEL_Y, radius=RADIUS):
     return patch, stats, winner
 
 
-def kuwahara_maps(image, radius=3):
-    height, width, _ = image.shape
-    padded = np.pad(image, ((radius, radius), (radius, radius), (0, 0)), mode="edge")
-
-    variances = np.zeros((height, width, 4), dtype=np.float32)
-    result = np.zeros((height, width, 3), dtype=np.float32)
-
-    windows = [
-        (slice(0, radius + 1), slice(0, radius + 1)),
-        (slice(0, radius + 1), slice(radius, 2 * radius + 1)),
-        (slice(radius, 2 * radius + 1), slice(radius, 2 * radius + 1)),
-        (slice(radius, 2 * radius + 1), slice(0, radius + 1)),
-    ]
-
-    for y in range(height):
-        for x in range(width):
-            patch = padded[y : y + 2 * radius + 1, x : x + 2 * radius + 1]
-            best_variance = None
-            best_mean = None
-
-            for idx, (ys, xs) in enumerate(windows):
-                region = patch[ys, xs]
-                mean = region.mean(axis=(0, 1))
-                variance = np.maximum((region * region).mean(axis=(0, 1)) - mean * mean, 0.0)
-                total_variance = float(variance.sum())
-                variances[y, x, idx] = total_variance
-
-                if best_variance is None or total_variance < best_variance:
-                    best_variance = total_variance
-                    best_mean = mean
-
-            result[y, x] = best_mean
-
-    return variances, result
-
-
 def save_region_overlay():
     cell = 34
     grid_size = 7
@@ -385,7 +349,6 @@ def main():
         raise SystemExit("Run the export step first so poster-assets/filters exists.")
 
     image = load_source()
-    _, _ = kuwahara_maps(image, radius=3)
     save_patch_locator()
     save_region_overlay()
     save_selection_panel(image)

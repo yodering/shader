@@ -38,9 +38,6 @@ let activeProgram = null;
 /** The currently uploaded image texture (WebGLTexture). */
 let imageTexture = null;
 
-/** The HTMLImageElement most recently loaded by the user. */
-let loadedImage = null;
-
 /** The active source element drawn into uTexture: image/canvas/video. */
 let sourceElement = null;
 
@@ -421,7 +418,6 @@ function loadImageFromElement(img, w, h) {
 
   if (imageTexture) gl.deleteTexture(imageTexture);
   imageTexture = uploadTexture(gl, img);
-  loadedImage  = img;
   sourceElement = img;
 
   showImageActions();
@@ -587,7 +583,6 @@ async function startCamera() {
 
     if (imageTexture) gl.deleteTexture(imageTexture);
     imageTexture = uploadTexture(gl, cameraVideo);
-    loadedImage = null;
     sourceElement = cameraVideo;
 
     showImageActions();
@@ -692,7 +687,6 @@ function resetSource() {
     gl.deleteTexture(imageTexture);
     imageTexture = null;
   }
-  loadedImage = null;
   sourceElement = null;
 
   // Reset canvas to 1×1 so it takes no space behind the overlay.

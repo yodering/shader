@@ -1,5 +1,6 @@
 {
-  "name": "webgl-filter-playground",
+  "name": "kuwahara-filter-playground",
+  "description": "WebGL image-processing playground focused on Kuwahara-family filters for CSC 364.",
   "type": "module",
   "private": true,
   "scripts": {

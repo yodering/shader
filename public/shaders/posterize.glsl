@@ -8,7 +8,6 @@
 precision mediump float;
 
 uniform sampler2D uTexture;
-uniform vec2 uResolution;
 uniform int uLevels;
 
 varying vec2 vTexCoord;

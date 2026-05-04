@@ -1,3 +1,6 @@
 [build]
-  command = "npm run build"
+  command = "bun run build"
   publish = "dist"
+
+[build.environment]
+  BUN_VERSION = "1.2.22"

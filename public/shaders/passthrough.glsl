@@ -10,9 +10,6 @@ precision mediump float;
 // The uploaded image, bound to texture unit 0.
 uniform sampler2D uTexture;
 
-// Canvas dimensions in pixels, useful for computing per-pixel offsets.
-uniform vec2 uResolution;
-
 // Interpolated texture coordinate from the vertex shader.
 varying vec2 vTexCoord;
 
