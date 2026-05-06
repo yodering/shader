@@ -110,43 +110,6 @@ Nagao-Matsuyama uses nine candidate regions over a local pattern. In this implem
 
 ![Kuwahara variant zoom comparison](poster-assets/kuwahara-comparison-zooms.png)
 
-## Adding a Filter
-
-1. Add a fragment shader to `public/shaders/`.
-2. Add an entry to `FILTERS` in `src/filters.js`.
-3. Define any slider-controlled uniforms in that entry.
-
-The app provides these common values to shaders that declare them:
-
-```glsl
-uniform sampler2D uTexture;
-uniform vec2 uResolution;
-varying vec2 vTexCoord;
-```
-
-Only declare `uResolution` in the shader when it is actually used.
-
-## Poster Assets
-
-The generated figures in `poster-assets/` are intentionally checked in because they are part of the CSC 364 presentation material and are referenced by this README.
-
-To regenerate them:
-
-```bash
-bun run poster-assets
-```
-
-The browser export step uses Playwright and Vite. The Python figure-building step requires `numpy` and `Pillow`:
-
-```bash
-python3 -m pip install numpy pillow
-```
-
-## Deployment Notes
-
-`vite.config.js` sets `base: '/shader/'`, which is useful when deploying the app under a `/shader/` subpath, such as GitHub Pages. If deploying at a domain root, change the Vite base to `'/'`.
-
-Camera input requires a secure context in most browsers. It works on `localhost` during development and on HTTPS deployments.
 
 ## Limitations
 
